@@ -1,0 +1,4 @@
+{
+  "noneAllowed": ["docs/", ".github/", ".claude/", ".gitignore", "*.md"],
+  "noneForbidden": ["infra/"]
+}
