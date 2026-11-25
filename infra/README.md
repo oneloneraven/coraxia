@@ -3,8 +3,8 @@
 The identity stack for every project's admin section, managed here with
 [OpenTofu](https://opentofu.org), the open-source fork of Terraform (same HCL,
 providers and state format): the Zero Trust organisation, its login method,
-one admin Access application per project with one shared owner policy, and
-Turnstile widgets. The only things outside OpenTofu are the state bucket (it
+one admin Access application per project with one shared owner policy,
+service tokens for machine-to-machine reads, and Turnstile widgets. The only things outside OpenTofu are the state bucket (it
 must exist before OpenTofu can use it) and the CI credentials below.
 
 State lives in the R2 bucket `coraxia-tfstate`, never in git.
@@ -57,7 +57,11 @@ teardown below.
   application gets the same settings, and none can be changed per project: the
   login method is the only one allowed and is signed in to without a choice
   screen, the binding cookie and `HttpOnly` are on, `SameSite` is `lax`,
-  sessions last 8 hours, and the owner policy is the only policy.
+  sessions last 8 hours, and the owner policy comes first. An application
+  that a service token lists also gets a service-auth policy for those tokens.
+- **Service tokens**, from the `service_tokens` map, each listing the
+  applications it may reach. They never expire, so a daily job never stops
+  without warning; rotate one by raising its `client_secret_version`.
 - **Turnstile widgets**, from the `widgets` map, with `prevent_destroy`.
 
 ## Setup
@@ -77,8 +81,8 @@ account. Neither token has a zone permission.
 
 | Token | GitHub secret | Permissions |
 |---|---|---|
-| Infra plan | `CLOUDFLARE_INFRA_PLAN_TOKEN` (repository) | Account: Workers R2 Storage Read, Access: Organizations, Identity Providers, and Groups Read, Access: Apps Read, Access: Policies Read, Turnstile Sites Read |
-| Infra apply | `CLOUDFLARE_INFRA_APPLY_TOKEN` (environment `infra`) | Account: Workers R2 Storage Edit, Access: Organizations, Identity Providers, and Groups Edit, Access: Apps Edit, Access: Policies Edit, Turnstile Sites Edit |
+| Infra plan | `CLOUDFLARE_INFRA_PLAN_TOKEN` (repository) | Account: Workers R2 Storage Read, Access: Organizations, Identity Providers, and Groups Read, Access: Apps Read, Access: Policies Read, Access: Service Tokens Read, Turnstile Sites Read |
+| Infra apply | `CLOUDFLARE_INFRA_APPLY_TOKEN` (environment `infra`) | Account: Workers R2 Storage Edit, Access: Organizations, Identity Providers, and Groups Edit, Access: Apps Edit, Access: Policies Edit, Access: Service Tokens Edit, Turnstile Sites Edit |
 
 The organisations permission is the one name not yet proven on a real
 account: if creating the tokens fails because it doesn't resolve, the error
@@ -141,6 +145,28 @@ lets in. It is never committed.
 3. Read the outputs: `app_aud["example"]` and `team_domain`. In the project's
    `wrangler.jsonc`, set `ACCESS_AUD` and `ACCESS_TEAM_DOMAIN` to them. The
    Worker checks the Access token against both.
+
+## Adding a service token
+
+1. Add an entry to `service_tokens` in `infra/terraform.tfvars.json`, keyed by
+   name, listing the applications it may reach:
+
+   ```json
+   {
+     "service_tokens": {
+       "example-usage": { "name": "Example reads usage", "apps": ["example"] }
+     }
+   }
+   ```
+
+2. Open a PR. The plan shows the token and the application's service-auth
+   policy; merge it and the apply creates them.
+3. Read the client id and secret with `tofu output -json service_tokens`
+   (with the state read-only credentials). They are sensitive, so the apply
+   log never prints them. Store them in Proton Pass straight away.
+4. The calling project sends them as `CF-Access-Client-Id` and
+   `CF-Access-Client-Secret`. Access only lets the token past the login; the
+   application's Worker decides which routes it may use.
 
 ## Adding a widget
 

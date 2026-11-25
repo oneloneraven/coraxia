@@ -37,3 +37,17 @@ variable "widgets" {
   }))
   default = {}
 }
+
+variable "service_tokens" {
+  description = "Access service tokens, keyed by name, each listing the admin applications (keys of apps) it may reach without a login."
+  type = map(object({
+    name = string
+    apps = list(string)
+  }))
+  default = {}
+
+  validation {
+    condition     = alltrue(flatten([for token in values(var.service_tokens) : [for app in token.apps : contains(keys(var.apps), app)]]))
+    error_message = "Every app a service token lists must be a key of apps."
+  }
+}

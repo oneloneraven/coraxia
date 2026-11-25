@@ -12,8 +12,14 @@ resource "cloudflare_zero_trust_access_application" "admin" {
   http_only_cookie_attribute = true
   same_site_cookie_attribute = "lax"
 
-  policies = [{
-    id         = cloudflare_zero_trust_access_policy.owner.id
-    precedence = 1
-  }]
+  policies = concat(
+    [{
+      id         = cloudflare_zero_trust_access_policy.owner.id
+      precedence = 1
+    }],
+    contains(keys(local.service_token_apps), each.key) ? [{
+      id         = cloudflare_zero_trust_access_policy.service[each.key].id
+      precedence = 2
+    }] : [],
+  )
 }
