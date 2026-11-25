@@ -12,3 +12,14 @@ output "widget_sitekey" {
   description = "Each Turnstile widget's sitekey, by project."
   value       = { for key, widget in cloudflare_turnstile_widget.site : key => widget.sitekey }
 }
+
+output "service_tokens" {
+  description = "Each service token's client id and secret, by name. Sensitive, so it never prints in the public apply log: read it with tofu output -json service_tokens."
+  sensitive   = true
+  value = {
+    for key, token in cloudflare_zero_trust_access_service_token.this : key => {
+      client_id     = token.client_id
+      client_secret = token.client_secret
+    }
+  }
+}

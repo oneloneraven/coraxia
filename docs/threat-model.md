@@ -11,12 +11,14 @@ Describe the components, where each runs, and how data flows between them.
 
 | Boundary | Between | What crosses it | Controls |
 |---|---|---|---|
+| Service → admin application | A caller holding an Access service token (Engage's daily job) and a project's admin application | The token's client id and secret, as request headers | One token per caller, listed per application in `infra/`; Access lets it past the login only, and the project's Worker limits it to the routes it allows (Climbing Logbook: its usage endpoint, ADR-0041 there). The secret is a sensitive output, never printed in the public apply log |
 | Release job → GitHub API | `release.yml` and the release GitHub App | Short-lived App token (Contents and Workflows: read and write) to push release tags and create releases | Token minted only in the release job and scoped to this repository; App installed on this repository only; private key held as a repository secret |
 
 ## Assets
 
 | Asset | Why it matters |
 |---|---|
+| Service token secrets | Anyone holding one gets past Access on the applications its token lists |
 | Release App private key | Anyone holding it can mint tokens that push tags and, through Workflows, change workflow files |
 
 ## Actors
@@ -32,7 +34,7 @@ Describe the components, where each runs, and how data flows between them.
 
 | Threat | Category | Mitigation | Status |
 |---|---|---|---|
-| | Spoofing | | |
+| Leaked service token used to reach an admin application | Spoofing | It gets past Access only on the applications its token lists, and the Worker accepts it on its allowed routes alone; rotate it with `client_secret_version`. It never expires, so a leak lasts until rotated | Accepted |
 | | Tampering | | |
 | | Repudiation | | |
 | | Information disclosure | | |
