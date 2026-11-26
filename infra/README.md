@@ -27,10 +27,7 @@ dashboard, so a change there is refused; make it in code.
 - Before writing to Cloudflare through an API, an MCP tool or the dashboard,
   check whether `infra/` declares that resource. If it does, make the change
   there instead.
-- In an emergency, a change by hand needs the maintainer's explicit OK first.
-  Then declare the same resource in `infra/` straight away, with an `import`
-  block for anything created by hand, so the next apply adopts it instead of
-  failing to create it again.
+(Kept in the private vault.)
 
 ## Deleting resources
 
@@ -43,34 +40,15 @@ teardown below.
 
 ## What it manages
 
-- **The Zero Trust organisation**, adopted with an `import` block.
-  `is_ui_read_only` and `ui_read_only_toggle_reason` are set, so the dashboard
-  is read-only and says why. `service_token_inactivity` is declared in full
-  with enforcement off, because the API rejects an update that carries only
-  part of it. Every other organisation setting is left as it is
-  (`ignore_changes`).
-- **The login method**: the Cloudflare login method (sign in with a
-  Cloudflare account), adopted with an `import` block, restricted to members of
-  the account.
-- **One owner policy**: allows the one email in `OWNER_EMAIL`.
-- **One admin application per project**, from the `apps` map. Every
-  application gets the same settings, and none can be changed per project: the
-  login method is the only one allowed and is signed in to without a choice
-  screen, the binding cookie and `HttpOnly` are on, `SameSite` is `lax`,
-  sessions last 8 hours, and the owner policy comes first. An application
-  that a service token lists also gets a service-auth policy for those tokens.
-- **Service tokens**, from the `service_tokens` map, each listing the
-  applications it may reach. They never expire, so a daily job never stops
-  without warning; rotate one by raising its `client_secret_version`.
-- **Turnstile widgets**, from the `widgets` map, with `prevent_destroy`.
+This section is kept in the private vault.
 
 ## Setup
 
 1. The Cloudflare account has a Zero Trust organisation and its Cloudflare
    login method.
-2. Create the CI tokens below, the R2 state credentials, and the GitHub
-   secrets and variables: `node <plugin>/skills/bootstrap/scripts/secrets.mjs cloudflare-tokens <project dir>`
-   does the CI tokens, or follow this page by hand.
+2. Create the CI tokens, the R2 state credentials, and the GitHub secrets
+   and variables: `node <plugin>/skills/bootstrap/scripts/secrets.mjs cloudflare-tokens <project dir>`
+   does the CI tokens. Their permissions are kept in the private vault.
 3. Run "Bootstrap OpenTofu state bucket".
 4. Run "Infra" (dispatch it, or merge a change under `infra/`).
 
@@ -97,8 +75,7 @@ version locally.
 Cloudflare login method (Zero Trust → Integrations → Identity providers). It
 isn't confidential. The first apply adopts that login method.
 
-`OWNER_EMAIL` as a repository secret: the one email every admin application
-lets in. It is never committed.
+(Kept in the private vault.)
 
 ## Adding a project's admin section
 
@@ -162,18 +139,4 @@ This section is kept in the private vault.
 
 ## Teardown
 
-Deliberately deleting the stack:
-
-1. Set `is_ui_read_only` to `false` in a PR and let Infra apply it, so the
-   dashboard can be edited again.
-2. Remove the organisation and the login method from state, so the destroy
-   leaves the account's own Zero Trust organisation and login method alone:
-   `tofu state rm cloudflare_zero_trust_organization.this cloudflare_zero_trust_access_identity_provider.login`.
-3. Remove `prevent_destroy` from every resource in a PR (the infra workflow
-   refuses plans that delete, so run the destroy locally).
-4. Locally, with the infra apply token and state credentials in your
-   environment:
-   `tofu init -backend-config="endpoints={s3=\"https://<account id>.r2.cloudflarestorage.com\"}"`
-   then `tofu destroy`.
-5. Empty and delete the `coraxia-tfstate` bucket in the dashboard.
-6. Revoke the two Cloudflare tokens and the R2 credentials.
+This section is kept in the private vault.
