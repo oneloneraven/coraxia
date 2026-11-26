@@ -23,8 +23,9 @@ Read a doc when the work touches it, not up front.
 - Code is reviewed against [coding standards](docs/coding-standards.md); hold it to the [engineering standards](.claude/skills/engineering-standards/SKILL.md).
 - No comments by default; one line for a "why" the code can't express: [comments](docs/coding-standards.md#comments-and-docs).
 - Privacy and data rules: [privacy](docs/privacy.md), [record of processing](docs/data-protection.md).
-- Keep the [threat model](docs/threat-model.md) current whenever a trust boundary moves.
-- Screen new dependencies and vendors and record each in [the register](docs/dependency-register.md): [ADR-0002](docs/adr/0002-screen-dependencies-against-bds-boycott-lists.md).
+- ADRs, specs, plans, runbooks, the threat model and architecture docs are written in `oneloneraven-vault/coraxia/`, never here. Keep the threat model current whenever a trust boundary moves.
+- Raise security-sensitive issues in `oneloneraven-vault`, not here. Never copy vault content into this repository, its issues, PRs or commits.
+- Screen new dependencies and vendors and record each in [the register](docs/dependency-register.md): ADR-0002 (in the vault).
 - Significant decisions get an [ADR](docs/adr/README.md).
 - Verify before claiming anything works; report failures and unverified steps plainly.
 
@@ -35,5 +36,5 @@ Read a doc when the work touches it, not up front.
 
 ## Stack
 
-- Cloudflare identity stack: every project's admin Access application, the login method, the Zero Trust organisation and the Turnstile widgets, in OpenTofu: [infra](infra/README.md). Merging `infra/` is a production change.
-- Never change anything `infra/` manages through an API, an MCP tool or the dashboard. Change it in `infra/` through a PR: [infra](infra/README.md#changing-infrastructure).
+- Cloudflare identity stack: every project's admin Access application, the login method, the Zero Trust organisation and the Turnstile widgets, in OpenTofu: infra (in the vault). Merging `infra/` is a production change.
+- Never change anything `infra/` manages through an API, an MCP tool or the dashboard. Change it in `infra/` through a PR: infra (in the vault).
