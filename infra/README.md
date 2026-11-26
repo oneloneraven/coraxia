@@ -76,38 +76,11 @@ teardown below.
 
 ### Cloudflare API tokens
 
-Create each as an account-owned token with a one-year expiry, scoped to this
-account. Neither token has a zone permission.
-
-| Token | GitHub secret | Permissions |
-|---|---|---|
-| Infra plan | `CLOUDFLARE_INFRA_PLAN_TOKEN` (repository) | Account: Workers R2 Storage Read, Access: Organizations, Identity Providers, and Groups Read, Access: Apps Read, Access: Policies Read, Access: Service Tokens Read, Turnstile Sites Read |
-| Infra apply | `CLOUDFLARE_INFRA_APPLY_TOKEN` (environment `infra`) | Account: Workers R2 Storage Edit, Access: Organizations, Identity Providers, and Groups Edit, Access: Apps Edit, Access: Policies Edit, Access: Service Tokens Edit, Turnstile Sites Edit |
-
-The organisations permission is the one name not yet proven on a real
-account: if creating the tokens fails because it doesn't resolve, the error
-names it, and the dashboard's label for it is the one to use.
-
-If a plan or apply fails with an authorisation error, the error names the
-missing permission: add exactly that one.
-
-Never add a per-Worker granular policy to an existing token by editing it in
-place: such writes have failed or silently left a token with no policies.
-Create a new token instead. Check a token's real contents with
-`GET /accounts/<account id>/tokens/<token id>`, not the dashboard labels.
+This section is kept in the private vault.
 
 ### R2 state credentials
 
-`node <plugin>/skills/bootstrap/scripts/secrets.mjs cloudflare-r2 <project dir>` creates both and sets the secrets. By hand, create two R2 API tokens (R2 → Manage R2 API Tokens), both limited to the
-`coraxia-tfstate` bucket:
-
-| Token | Permission | GitHub secrets |
-|---|---|---|
-| State read-write | Object Read & Write | `TF_STATE_ACCESS_KEY_ID`, `TF_STATE_SECRET_ACCESS_KEY` (environment `infra`) |
-| State read-only | Object Read only | `TF_STATE_READ_ACCESS_KEY_ID`, `TF_STATE_READ_SECRET_ACCESS_KEY` (repository, for PR plans) |
-
-PR plans run with the read-only pair, so code in a pull request can't
-rewrite state.
+This section is kept in the private vault.
 
 ### OpenTofu version
 
@@ -148,25 +121,7 @@ lets in. It is never committed.
 
 ## Adding a service token
 
-1. Add an entry to `service_tokens` in `infra/terraform.tfvars.json`, keyed by
-   name, listing the applications it may reach:
-
-   ```json
-   {
-     "service_tokens": {
-       "example-usage": { "name": "Example reads usage", "apps": ["example"] }
-     }
-   }
-   ```
-
-2. Open a PR. The plan shows the token and the application's service-auth
-   policy; merge it and the apply creates them.
-3. Read the client id and secret with `tofu output -json service_tokens`
-   (with the state read-only credentials). They are sensitive, so the apply
-   log never prints them. Store them in Proton Pass straight away.
-4. The calling project sends them as `CF-Access-Client-Id` and
-   `CF-Access-Client-Secret`. Access only lets the token past the login; the
-   application's Worker decides which routes it may use.
+This section is kept in the private vault.
 
 ## Adding a widget
 
@@ -188,13 +143,7 @@ Cloudflare dashboard.
 
 ## Rotating a widget's secret
 
-1. Run "Rotate a Turnstile widget secret" on `main` with the widget's
-   sitekey. Tick `invalidate_immediately` only if the old secret must stop
-   working at once; otherwise Cloudflare keeps it valid for a grace period.
-   The workflow never prints the new secret.
-2. Read the new secret on the widget's Turnstile page.
-3. In the project that verifies tokens with it, set it as that project's
-   Worker secret.
+This section is kept in the private vault.
 
 ## Importing existing applications, policies and widgets
 
@@ -204,10 +153,7 @@ resources will be linked here.
 
 ## Account guidance
 
-The Cloudflare account behind the login method is the way into every admin
-section. Keep it on passkey or security-key two-factor only, with no
-authenticator-app or email fallback, and keep its backup codes somewhere other
-than the passkey's own store.
+This section is kept in the private vault.
 
 ## Disaster recovery
 
