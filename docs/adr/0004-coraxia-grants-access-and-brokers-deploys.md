@@ -6,7 +6,7 @@ Accepted.
 
 ## Context
 
-One Lone Raven's central systems each have one job (project-bootstrap's [architecture](https://github.com/oneloneraven/project-bootstrap/blob/main/docs/architecture.md), its ADR-0008). Coraxia's job is to grant access, for people and machines.
+One Lone Raven's central systems each have one job (Bootstrap's [architecture](https://github.com/oneloneraven/project-bootstrap/blob/main/docs/architecture.md), its ADR-0008). Coraxia's job is to grant access, for people and machines.
 
 Engage's deploy-credential broker (Engage's ADR-0008) grants access too, and its parent secret can mint any Cloudflare API token on the account. It lives in Engage, the system with the most code and the most public input. No repository uses it yet.
 
@@ -22,5 +22,5 @@ Engage's deploy-credential broker (Engage's ADR-0008) grants access too, and its
 
 - A compromised Engage can't mint a credential, because it can't forge the owner's Access token.
 - Coraxia becomes running code as well as infrastructure, with its own deploy, tests and threat model.
-- Every product deploy depends on coraxia's broker. A break-glass runbook covers deploying by hand.
-- Guardian watches coraxia like any other system. Each minted token shows in Cloudflare's audit log.
+- Every product deploy depends on Coraxia's broker. A break-glass runbook covers deploying by hand.
+- Guardian watches Coraxia like any other system. Each minted token shows in Cloudflare's audit log.
