@@ -1,4 +1,4 @@
 {
-  "noneAllowed": ["docs/", ".github/", ".claude/", ".gitignore", "*.md"],
+  "noneAllowed": ["docs/", ".github/", ".claude/", ".gitignore", "*.md", ".bootstrap/record.json"],
   "noneForbidden": ["infra/"]
 }
