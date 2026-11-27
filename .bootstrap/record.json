@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "modules": [
+    "core",
+    "cloudflare-tofu-base",
+    "cloudflare-identity"
+  ],
+  "visibility": "public",
+  "flags": {
+    "owner_org": true
+  },
+  "skipped": {
+    "manual:cloudflare-identity:3": "Existing admin sections and widgets move in through the #122 migration runbook, not added fresh"
+  },
+  "exceptions": []
+}
